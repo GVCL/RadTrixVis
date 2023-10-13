@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/radtrixplusplus/static/css/main.45660339.css",
+    "main.js": "/radtrixplusplus/static/js/main.dbe36fd3.js",
+    "static/js/787.86605eb5.chunk.js": "/radtrixplusplus/static/js/787.86605eb5.chunk.js",
+    "index.html": "/radtrixplusplus/index.html",
+    "main.45660339.css.map": "/radtrixplusplus/static/css/main.45660339.css.map",
+    "main.dbe36fd3.js.map": "/radtrixplusplus/static/js/main.dbe36fd3.js.map",
+    "787.86605eb5.chunk.js.map": "/radtrixplusplus/static/js/787.86605eb5.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.45660339.css",
+    "static/js/main.dbe36fd3.js"
+  ]
+}
