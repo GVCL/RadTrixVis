@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/RadTrixPlusPlus/static/css/main.937c9bb9.css",
-    "main.js": "/RadTrixPlusPlus/static/js/main.7937f547.js",
+    "main.js": "/RadTrixPlusPlus/static/js/main.ce6ee250.js",
     "static/js/787.86605eb5.chunk.js": "/RadTrixPlusPlus/static/js/787.86605eb5.chunk.js",
     "index.html": "/RadTrixPlusPlus/index.html",
     "main.937c9bb9.css.map": "/RadTrixPlusPlus/static/css/main.937c9bb9.css.map",
-    "main.7937f547.js.map": "/RadTrixPlusPlus/static/js/main.7937f547.js.map",
+    "main.ce6ee250.js.map": "/RadTrixPlusPlus/static/js/main.ce6ee250.js.map",
     "787.86605eb5.chunk.js.map": "/RadTrixPlusPlus/static/js/787.86605eb5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.937c9bb9.css",
-    "static/js/main.7937f547.js"
+    "static/js/main.ce6ee250.js"
   ]
 }
