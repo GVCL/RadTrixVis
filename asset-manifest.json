@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/RadTrixPlusPlus/static/css/main.eba16b8c.css",
-    "main.js": "/RadTrixPlusPlus/static/js/main.bb74dd3b.js",
-    "static/js/787.86605eb5.chunk.js": "/RadTrixPlusPlus/static/js/787.86605eb5.chunk.js",
-    "index.html": "/RadTrixPlusPlus/index.html",
-    "main.eba16b8c.css.map": "/RadTrixPlusPlus/static/css/main.eba16b8c.css.map",
-    "main.bb74dd3b.js.map": "/RadTrixPlusPlus/static/js/main.bb74dd3b.js.map",
-    "787.86605eb5.chunk.js.map": "/RadTrixPlusPlus/static/js/787.86605eb5.chunk.js.map"
+    "main.css": "/RadTrixVis/static/css/main.eba16b8c.css",
+    "main.js": "/RadTrixVis/static/js/main.2283b8d2.js",
+    "static/js/787.86605eb5.chunk.js": "/RadTrixVis/static/js/787.86605eb5.chunk.js",
+    "index.html": "/RadTrixVis/index.html",
+    "main.eba16b8c.css.map": "/RadTrixVis/static/css/main.eba16b8c.css.map",
+    "main.2283b8d2.js.map": "/RadTrixVis/static/js/main.2283b8d2.js.map",
+    "787.86605eb5.chunk.js.map": "/RadTrixVis/static/js/787.86605eb5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.eba16b8c.css",
-    "static/js/main.bb74dd3b.js"
+    "static/js/main.2283b8d2.js"
   ]
 }
