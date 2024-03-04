@@ -1,20 +1,84 @@
 import { atom, selector } from "recoil";
-import { radiansToDegrees, radiansToX, radiansToY, width, radius, outerRadius, height, getIndex, color, margin } from './helpers';
-import { data } from "./data2";
+import { radiansToDegrees, radiansToX, radiansToY, width, radius, outerRadius, height, color, margin, Cmargin, colors } from './helpers';
+import { data } from "./data3";
 import * as d3 from 'd3';
 import cloneDeep from 'lodash/cloneDeep';
 import { shuffle } from "lodash";
 
 import ForceEdgeBundling from './ForceEdgeBundling';
 
+// export const circleNodeNames = data.circlenodes.map((e, i) => [i, e.name])
+// export const circleNodeSortedIdx = circleNodeNames.sort((a, b) => a[1].localeCompare(b[1]))
+
+export const fullDataAtom = atom({
+    key: 'radtrix$fullData',
+    default: data
+})
+
+export const circleNodeNames = selector({
+    key: 'radtrix$circleNodeNames',
+    get: ({ get }) => get(fullDataAtom).circlenodes.map((e, i) => [i, e.name])
+})
+
+export const circleNodeSortedIdx = selector({
+    key: 'radtrix$circleNodeSortedIdx',
+    get: ({ get }) => {
+        const arr = cloneDeep(get(circleNodeNames))
+        return arr.sort((a, b) => a[1].localeCompare(b[1]))
+    }
+})
+
 export const dataAtom = atom({
     key: 'radtrix$data',
     default: data
 })
 
+export const getIndexSelector = selector({
+    key: 'radtrix$getIndex',
+    get: ({ get }) => {
+        return get(fullDataAtom).nodes.reduce((a, e) => {
+            a[e.name] = e.index
+            return a
+        }, {})
+    }
+})
+
+export const optionsSelector = selector({
+    key: 'radtrix$options',
+    get: ({ get }) => {
+        const getIndex = cloneDeep(get(getIndexSelector))
+        return Object.keys(getIndex).map((e, i) => {
+            return {
+                label: e,
+                value: getIndex[e],
+                key: i
+            }
+        })
+    }
+})
+
+export const colorsAtom = atom({
+    key: 'radtrix$colors',
+    default: data.nodes.reduce((a, e) => {
+        a[e.index] = colors[e.index % colors.length]
+        return a
+    }, {})
+})
+
+export const cmColorsAtom = atom({
+    key: 'radtrix$cmColors',
+    default: {
+        circlenodes: '#ff0000',
+        matrixDiagonal: '#00ff00'
+    }
+})
+
 export const currentIndexAtom = atom({
     key: 'radtrix$currentIndex',
-    default: getIndex
+    default: data.nodes.reduce((a, e) => {
+        a[e.name] = e.index
+        return a
+    }, {})
 })
 
 export const edgeTypeAtom = atom({
@@ -52,6 +116,24 @@ export const colorScaleSelector = selector({
 export const totalItemsSelector = selector({
     key: 'radtrix$totalItems',
     get: ({ get }) => get(dataAtom).nodes.length
+})
+
+export const dradius = selector({
+    key: 'radtrix$dradius',
+    get: ({ get }) => {
+        const maxCircles = get(fullDataAtom).circlenodes.length
+        const currCircles = get(dataAtom).circlenodes.length
+
+        return (0.6 + ((currCircles / maxCircles) * 0.4)) * radius
+    }
+})
+
+export const dOuterRadius = selector({
+    key: 'radtrix$dOuterRadius',
+    get: ({ get }) => {
+        const rad = get(dradius)
+        return rad + Cmargin
+    }
 })
 
 export const nodesMatrixSelector = selector({
@@ -92,6 +174,10 @@ export const circleSelector = selector({
         const currentIndex = get(currentIndexAtom);
         const edgeType = get(edgeTypeAtom);
         const orderType = get(orderTypeAtom);
+        const colors = get(colorsAtom)
+
+        const drad = get(dradius)
+        const dor = get(dOuterRadius)
 
         // const getOrientation = (a, b, c) => {
         //     var val = ((b[1]-a[1])*(c[0]-b[0]))-((b[0]-a[0])*(c[1]-b[1]));
@@ -260,8 +346,8 @@ export const circleSelector = selector({
         const lexico_c_nodes = [];
         const deg_c_nodes = {};
         circleNodes.forEach(e => {
-            ordered_c_nodes.push({name: e.name, rank: e.rank})
-            lexico_c_nodes.push({name: e.name, rank: e.rank})
+            ordered_c_nodes.push({name: e.name, rank: e.rank, geneSource: e.geneSource})
+            lexico_c_nodes.push({name: e.name, rank: e.rank, geneSource: e.geneSource})
             let cnt = 0;
             circleEdges.forEach(f => f.source === e.name ? cnt += 1 : null)
             deg_c_nodes[e.name] = cnt;
@@ -270,18 +356,18 @@ export const circleSelector = selector({
         lexico_c_nodes.sort((a, b) => a.name.localeCompare(b.name))
         const shuffled_c_nodes = shuffle(ordered_c_nodes)
 
-        if (edgeType === 2) {
-            if (orderType === 1) {
-                const barycentric_c_nodes = getBarycentricOrdering(shuffled_c_nodes, circleEdges, nodes);
-                finalCircleNodes = barycentric_c_nodes;
-            }
-            else if (orderType === 2) finalCircleNodes = ordered_c_nodes;
-            else if (orderType === 3) finalCircleNodes = shuffled_c_nodes;
-        } else {
-            if (orderType === 1) finalCircleNodes = ordered_c_nodes;
-            else if (orderType === 2) finalCircleNodes = shuffled_c_nodes;
-            else if (orderType === 3) finalCircleNodes = lexico_c_nodes;
-        }
+        // if (edgeType === 2) {
+        //     if (orderType === 1) {
+        //         const barycentric_c_nodes = getBarycentricOrdering(shuffled_c_nodes, circleEdges, nodes);
+        //         finalCircleNodes = barycentric_c_nodes;
+        //     }
+        //     else if (orderType === 2) finalCircleNodes = ordered_c_nodes;
+        //     else if (orderType === 3) finalCircleNodes = shuffled_c_nodes;
+        // } else {
+        if (orderType === 1) finalCircleNodes = ordered_c_nodes;
+        else if (orderType === 2) finalCircleNodes = shuffled_c_nodes;
+        else if (orderType === 3) finalCircleNodes = lexico_c_nodes;
+        // }
 
         const currentIndexCount = Object.keys(currentIndex).length;
         const numNodes = finalCircleNodes.length;
@@ -296,9 +382,17 @@ export const circleSelector = selector({
             else if ((node.degrees > 135) && (node.degrees <= 225)) bucket = 2;
             else if ((node.degrees > 225) && (node.degrees <= 315)) bucket = 3;
             node.bucket = bucket;
-            node.x = radiansToX(node.radians, radius); // cx
-            node.y = radiansToY(node.radians, radius); // cy
+            node.x = radiansToX(node.radians, drad); // cx
+            node.y = radiansToY(node.radians, drad); // cy
         })
+
+        if (edgeType === 2) {
+            if (orderType === 1) {
+                const barycentric_c_nodes = getBarycentricOrdering(shuffle(finalCircleNodes), circleEdges, nodes);
+                finalCircleNodes = barycentric_c_nodes;
+            }
+        }
+
         const dict = [];
         let minDegree = 10
         let maxDegree = 0
@@ -342,7 +436,7 @@ export const circleSelector = selector({
             node.text_anchor = (Math.sin(node.radians) < 0) ? 'end' : 'begin';
             node.dx = (Math.sin(node.radians) < 0) ? '-1em' : '1em';
             let degrees = node.degrees - 90;
-            let xTranslate = radius;
+            let xTranslate = drad;
             if (Math.sin(node.radians) < 0) {
                 degrees -= 180;
                 xTranslate *= -1;
@@ -358,13 +452,15 @@ export const circleSelector = selector({
                 r: node.r
             }
         })
+        
+        // console.log(nodeDict)
         circleEdges.forEach(edge => {
             const idx = currentIndex[edge.target];
-            edge.stroke = color[idx];
-            edge.x1 = nodeDict[edge.source].x + outerRadius;
-            edge.y1 = nodeDict[edge.source].y + outerRadius;
+            edge.stroke = colors[idx];
+            edge.x1 = nodeDict[edge.source].x + dor;
+            edge.y1 = nodeDict[edge.source].y + dor;
             const checkDegree = nodeDict[edge.source].degree;
-            let x2 = matrixScale(matrix[idx][idx].x) + radius;
+            let x2 = matrixScale(matrix[idx][idx].x) + drad;
             if (checkDegree > 225 && checkDegree <= 305) {
                 x2 = (x2 - ((width / currentIndexCount) * idx)); // Left
             }
@@ -374,7 +470,7 @@ export const circleSelector = selector({
             else {
                 x2 = (x2 + (width / currentIndexCount) * 0.5);
             }
-            let y2 = matrixScale(matrix[idx][idx].y) + radius;
+            let y2 = matrixScale(matrix[idx][idx].y) + drad;
             if (checkDegree >= 135 && checkDegree <= 225) {
                 y2 = (y2 + height); // Bottom
             }
@@ -395,21 +491,21 @@ export const circleSelector = selector({
             let combinedEdgesRes = [];
             for (let i = 0; i < finalCircleNodes.length; i++) {
                 combinedNodesRes[finalCircleNodes[i].name] = {
-                    "x": finalCircleNodes[i].x + outerRadius + margin.top, 
-                    "y": finalCircleNodes[i].y + outerRadius + margin.left
+                    "x": finalCircleNodes[i].x + dor + margin.top, 
+                    "y": finalCircleNodes[i].y + dor + margin.left
                 };
             }
             for (let i = 0; i < nodes.length; i++) {
-                let x =  matrixScale(matrix[i][i].x) + margin.left + outerRadius - (width/2) + matrixScale.bandwidth()/2;
-                let y =  matrixScale(matrix[i][i].x) + margin.top + outerRadius - (height/2) + matrixScale.bandwidth()/2;
+                let x =  matrixScale(matrix[i][i].x) + margin.left + dor - (width/2) + matrixScale.bandwidth()/2;
+                let y =  matrixScale(matrix[i][i].x) + margin.top + dor - (height/2) + matrixScale.bandwidth()/2;
 
-                combinedNodesRes[nodes[i].name+"0"] = {"x": x, "y": margin.left + outerRadius - height/2};
+                combinedNodesRes[nodes[i].name+"0"] = {"x": x, "y": margin.left + dor - height/2};
                 
-                combinedNodesRes[nodes[i].name+"1"] = {"x": margin.left + outerRadius + width/2, "y": y};
+                combinedNodesRes[nodes[i].name+"1"] = {"x": margin.left + dor + width/2, "y": y};
                 
-                combinedNodesRes[nodes[i].name+"2"] = {"x": x, "y": margin.left + outerRadius + height/2};
+                combinedNodesRes[nodes[i].name+"2"] = {"x": x, "y": margin.left + dor + height/2};
                 
-                combinedNodesRes[nodes[i].name+"3"] = {"x": margin.left + outerRadius - width/2, "y": y};
+                combinedNodesRes[nodes[i].name+"3"] = {"x": margin.left + dor - width/2, "y": y};
             }
             for (let i = 0; i < circleEdges.length; i++) {
                 let tgt = "";
@@ -430,7 +526,7 @@ export const circleSelector = selector({
                         .edges(combinedEdgesRes);
             const results = fbundling();
             results.forEach(e => {
-                e.stroke = color[currentIndex[e["info"].target_color]]
+                e.stroke = colors[currentIndex[e["info"].target_color]]
             })
 
             return [finalCircleNodes, results]

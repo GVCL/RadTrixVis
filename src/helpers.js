@@ -5,12 +5,17 @@ export const radiansToX = (radians, radius) => Math.sin(radians) * radius;
 export const radiansToY = (radians, radius) => Math.cos(radians) * -radius;
 
 export const getIndex = { 'BRCA': 0, 'KICH': 1, 'KIRC': 2, 'KIRP': 3, 'LUSC': 4, 'PAAD': 5, 'STAD': 6 };
-export const color = { 0: "#33FFFF", 1: "#bf812d", 2: "#CC0099", 3: "#33a02c", 4: "#d6604d", 5: "#d6604d", 6: "#d6604d" };
+export const color = { 0: '#e41a1c', 1: '#377eb8', 2: '#4daf4a', 3: '#984ea3', 4: '#ff7f00', 5: '#ffff33', 6: '#a65628' };
+export const colors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '##ff7f00', '#ffff33', '#a65628']
+export const labels = {
+    circlenodes: 'Circle Nodes',
+    matrixDiagonal: 'Matrix Diagonal'
+}
 
 //For Matrix
 export const margin = { top: 200, right: 200, bottom: 200, left: 200 }, width = 100, height = 100;
 // For Circles
-export const radius = 800, Cmargin = 75, outerRadius = radius + Cmargin;
+export const radius = 550, Cmargin = 75, outerRadius = radius + Cmargin;
 
 /*
         let finalCircleNodes = []

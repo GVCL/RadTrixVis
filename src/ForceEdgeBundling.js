@@ -119,8 +119,8 @@ const ForceEdgeBundling = function () {
 		var filtered_edge_list = [];
 
 		for (var e = 0; e < edgelist.length; e++) {
-			if (data_nodes[edgelist[e].source].x != data_nodes[edgelist[e].target].x ||
-				data_nodes[edgelist[e].source].y != data_nodes[edgelist[e].target].y) { //or smaller than eps
+			if (data_nodes[edgelist[e].source].x !== data_nodes[edgelist[e].target].x ||
+				data_nodes[edgelist[e].source].y !== data_nodes[edgelist[e].target].y) { //or smaller than eps
 				filtered_edge_list.push(edgelist[e]);
 			}
 		}
@@ -359,6 +359,7 @@ const ForceEdgeBundling = function () {
 	/*** ************************ ***/
 
 
+	
 	/*** Getters/Setters Methods ***/
 	forcebundle.nodes = function (nl) {
 		if (arguments.length === 0) {
@@ -431,7 +432,7 @@ const ForceEdgeBundling = function () {
 	};
 
 	forcebundle.subdivision_points_seed = function (p) {
-		if (arguments.length == 0) {
+		if (arguments.length === 0) {
 			return P;
 		} else {
 			var P = p;
