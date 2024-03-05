@@ -640,7 +640,7 @@ function App() {
                                         setSelOpt([...e])
                                     }
                                 }}
-                                style={{width: '75%'}}
+                                style={{width: '100%'}}
                                 tagRender={renderTag}
                             >
                                 {options.map(e => (
@@ -655,7 +655,7 @@ function App() {
                                 dataSource={transferData}
                                 showSearch
                                 render={item => item.title}
-                                listStyle={{width: '35%', height: 400}}
+                                listStyle={{width: '43%', height: 400}}
                                 targetKeys={selTransfer}
                                 onChange={e => {
                                     check = 1
@@ -703,27 +703,6 @@ function App() {
                             <Button onClick={downloadCsvFile}>Download Data (CSV)</Button>
                         </Panel>
                         <Title level={3}>Aesthetics</Title>
-                        <Panel header="Edge Type: " key="3">
-                            <Radio.Group onChange={e => setEdgeType(e.target.value)} value={edgeType}>
-                                <Radio value={1}>Straight Edges</Radio>
-                                <Radio value={2}>Curved Edges</Radio>
-                            </Radio.Group>
-                        </Panel>
-                        <Panel header="Node Ordering: " key="4">
-                            {edgeType === 2 ? 
-                                <Radio.Group onChange={e => setOrderType(e.target.value)} value={orderType}>
-                                    <Radio value={1}>Barycentric ordering</Radio>
-                                    <Radio value={2}>Increasing order of degree</Radio>
-                                    <Radio value={3}>Random order</Radio>
-                                </Radio.Group>
-                                : <Radio.Group onChange={e => setOrderType(e.target.value)} value={orderType}>
-                                    <Radio value={1}>Increasing order of degree</Radio>
-                                    <Radio value={2}>Random order</Radio>
-                                    <Radio value={3}>Lexicographically order</Radio>
-                                </Radio.Group>
-                            }
-                            {console.log(colors)}
-                        </Panel>
                         <Panel header="Cancer Colors: " key="44">
                             <table style={{width: '100%'}}>
                                 <tr>
@@ -760,7 +739,7 @@ function App() {
                             </table>
                         </Panel>
                         <Panel header="Gene Colors: " key="45">
-                        <table style={{width: '100%'}}>
+                            <table style={{width: '100%'}}>
                                 <tr>
                                     <td>
                                         <Select
@@ -793,25 +772,26 @@ function App() {
                                     </td>
                                 </tr>
                             </table>
-                            {/* <table>
-                                {Object.keys(cmColors).map(e => {
-                                    return <tr>
-                                        <td><Text>{`${labels[e]}: `}</Text></td>
-                                        <td>
-                                            <ColorPicker
-                                                onChange={(f, ff) => {
-                                                    setCMColors({
-                                                        ...colors,
-                                                        [e]: ff
-                                                    })
-                                                }}
-                                                value={cmColors[e]}
-                                                showText
-                                            />
-                                        </td>
-                                    </tr>
-                                })}
-                            </table> */}
+                        </Panel>
+                        <Panel header="Edge Type: " key="3">
+                            <Radio.Group onChange={e => setEdgeType(e.target.value)} value={edgeType}>
+                                <Radio value={1}>Straight Edges</Radio>
+                                <Radio value={2}>Curved Edges</Radio>
+                            </Radio.Group>
+                        </Panel>
+                        <Panel header="Node Ordering: " key="4">
+                            {edgeType === 2 ? 
+                                <Radio.Group onChange={e => setOrderType(e.target.value)} value={orderType}>
+                                    <Radio value={1}>Barycentric ordering</Radio>
+                                    <Radio value={2}>Increasing order of degree</Radio>
+                                    <Radio value={3}>Random order</Radio>
+                                </Radio.Group>
+                                : <Radio.Group onChange={e => setOrderType(e.target.value)} value={orderType}>
+                                    <Radio value={1}>Increasing order of degree</Radio>
+                                    <Radio value={2}>Random order</Radio>
+                                    <Radio value={3}>Lexicographically order</Radio>
+                                </Radio.Group>
+                            }
                         </Panel>
                     </Collapse>
                 </Sider>
