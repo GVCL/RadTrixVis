@@ -6,10 +6,11 @@ export const radiansToY = (radians, radius) => Math.cos(radians) * -radius;
 
 export const getIndex = { 'BRCA': 0, 'KICH': 1, 'KIRC': 2, 'KIRP': 3, 'LUSC': 4, 'PAAD': 5, 'STAD': 6 };
 export const color = { 0: '#e41a1c', 1: '#377eb8', 2: '#4daf4a', 3: '#984ea3', 4: '#ff7f00', 5: '#ffff33', 6: '#a65628' };
-export const colors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '##ff7f00', '#ffff33', '#a65628']
+export const defaultColors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
 export const labels = {
     circlenodes: 'Circle Nodes',
-    matrixDiagonal: 'Matrix Diagonal'
+    matrixDiagonal: 'Matrix Diagonal',
+    matrixNonDiagonal: 'Matrix Non Diagonal'
 }
 
 //For Matrix

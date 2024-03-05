@@ -133,7 +133,7 @@ function RadTrix() {
                         return u;
                     }, []).map((e, index) => (
                         <g key={`circle-${index}`}>
-                            <circle cx={30} cy={20 + index * 40} r={e.r} fill="red" stroke="red" />
+                            <circle cx={30} cy={20 + index * 40} r={e.r} fill={e.fillStroke} stroke={e.fillStroke} />
                             <text x={50} y={25 + index * 40} fill="black">Node Degree: {e.nodeDegree}</text>
                         </g>
                     ))}
@@ -162,7 +162,7 @@ function RadTrix() {
                                     return u;
                                 }, []).map((e, index) => (
                                     <g key={`circle-${index}`}>
-                                        <circle cx={30} cy={20 + index * 40} r={e.r} fill="red" stroke="red" />
+                                        <circle cx={30} cy={20 + index * 40} r={e.r} fill={e.fillStroke} stroke={e.fillStroke} />
                                         <text x={50} y={25 + index * 40} fill="black">Node Degree: {e.nodeDegree}</text>
                                     </g>
                                 ))}
@@ -277,7 +277,7 @@ function RadTrix() {
                                                 key={nodes[i].name + '_matrix_' + nodes[j].name}
                                                 style={{
                                                     fillOpacity: f.x === f.y ? opacityScale1(f.z) : opacityScale(f.z),
-                                                    fill: f.x === f.y ? "green" : colorScale(1)
+                                                    fill: f.c // f.x === f.y ? "green" : colorScale(1)
                                                 }}
                                                 onMouseOver={() => mouseOverRows(f, nodes[i].name, nodes[j].name)}
                                                 onMouseLeave={mouseOut}
@@ -327,6 +327,8 @@ function RadTrix() {
                                 id={e.name}
                                 key={e.name + '_' + edgeType}
                                 nodedegree={e.nodeDegree}
+                                fill={e.fillStroke}
+                                stroke={e.fillStroke}
                                 r={e.r}
                                 onMouseOver={() => mouseOverCircle(e.name)}
                                 onMouseLeave={mouseOut}

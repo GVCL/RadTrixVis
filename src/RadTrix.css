@@ -9,9 +9,9 @@ circle.main-circle {
     fill: none;
 }
 
-circle.node {
+/* circle.node {
     fill: red;
-}
+} */
 
 text.node {
     font-size: 10px;

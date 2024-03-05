@@ -1,5 +1,5 @@
 import { atom, selector } from "recoil";
-import { radiansToDegrees, radiansToX, radiansToY, width, radius, outerRadius, height, color, margin, Cmargin, colors } from './helpers';
+import { radiansToDegrees, radiansToX, radiansToY, width, radius, outerRadius, height, color, margin, Cmargin, defaultColors } from './helpers';
 import { data } from "./data3";
 import * as d3 from 'd3';
 import cloneDeep from 'lodash/cloneDeep';
@@ -60,7 +60,7 @@ export const optionsSelector = selector({
 export const colorsAtom = atom({
     key: 'radtrix$colors',
     default: data.nodes.reduce((a, e) => {
-        a[e.index] = colors[e.index % colors.length]
+        a[e.name] = defaultColors[e.index % defaultColors.length]
         return a
     }, {})
 })
@@ -69,7 +69,8 @@ export const cmColorsAtom = atom({
     key: 'radtrix$cmColors',
     default: {
         circlenodes: '#ff0000',
-        matrixDiagonal: '#00ff00'
+        matrixDiagonal: '#2FA52F',
+        matrixNonDiagonal: '#1f77b4'
     }
 })
 
@@ -140,6 +141,7 @@ export const nodesMatrixSelector = selector({
     key: 'radtrix$matrix',
     get: ({ get }) => {
         const data = get(dataAtom);
+        const cmColors = get(cmColorsAtom);
         const nodes = cloneDeep(data.nodes);
         const matrix = []
         const totalItems = nodes.length;
@@ -149,7 +151,8 @@ export const nodesMatrixSelector = selector({
                 return {
                     x: idx,
                     y: node.index,
-                    z: 0
+                    z: 0,
+                    c: idx === node.index ? cmColors.matrixDiagonal : cmColors.matrixNonDiagonal
                 }
             })
         })
@@ -175,6 +178,7 @@ export const circleSelector = selector({
         const edgeType = get(edgeTypeAtom);
         const orderType = get(orderTypeAtom);
         const colors = get(colorsAtom)
+        const cmColors = get(cmColorsAtom)
 
         const drad = get(dradius)
         const dor = get(dOuterRadius)
@@ -442,6 +446,7 @@ export const circleSelector = selector({
                 xTranslate *= -1;
             }
             node.transform = 'rotate(' + degrees + ') translate(' + xTranslate + ', 0)';
+            node.fillStroke = cmColors.circlenodes
         })
         const nodeDict = {}
         finalCircleNodes.forEach(node => {
@@ -456,7 +461,7 @@ export const circleSelector = selector({
         // console.log(nodeDict)
         circleEdges.forEach(edge => {
             const idx = currentIndex[edge.target];
-            edge.stroke = colors[idx];
+            edge.stroke = colors[edge.target];
             edge.x1 = nodeDict[edge.source].x + dor;
             edge.y1 = nodeDict[edge.source].y + dor;
             const checkDegree = nodeDict[edge.source].degree;
@@ -526,7 +531,7 @@ export const circleSelector = selector({
                         .edges(combinedEdgesRes);
             const results = fbundling();
             results.forEach(e => {
-                e.stroke = colors[currentIndex[e["info"].target_color]]
+                e.stroke = colors[e["info"].target_color]
             })
 
             return [finalCircleNodes, results]

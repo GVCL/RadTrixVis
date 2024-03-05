@@ -3,7 +3,7 @@ import React from 'react';
 import RadTrix from './RadTrix';
 import { Button, Col, Collapse, ColorPicker, Input, InputNumber, Layout, PageHeader, Popover, Radio, Row, Select, Tag, Transfer, Typography, Upload, message } from 'antd';
 import { CopyrightOutlined, InfoCircleOutlined, UploadOutlined } from '@ant-design/icons';
-import { color, labels } from './helpers';
+import { color, defaultColors, labels } from './helpers';
 import Papa from 'papaparse';
 import { data as data2 } from './data2';
 import { data as data3 } from './data3';
@@ -117,7 +117,7 @@ function App() {
             //     {v.label} 
             // </span>
             <Tag
-                style={{background: colors[v.value]}}
+                style={{background: colors[v.label]}}
             >
                 {v.label}
             </Tag>
@@ -261,6 +261,8 @@ function App() {
     const [maxRank, setMaxRank] = React.useState(100)
     const [stepSize, setStepSize] = React.useState(1)
     const [circleNodes, circleEdges] = useRecoilValue(circleSelector);
+    const [colorSelect, setColorSelect] = React.useState(saveData.nodes[0].name);
+    const [geneColorSelect, setGeneColorSelect] = React.useState(Object.keys(labels)[0])
 
     // React.useEffect(() => {
     //     const newData = cloneDeep(data);
@@ -280,7 +282,7 @@ function App() {
             setTopK(Math.min(100, fileContent.content.circlenodes.length))
             setSelOpt(range(fileContent.content.nodes.length))
             setColors(fileContent.content.nodes.reduce((a, e) => {
-                a[e.index] = colors[e.index % colors.length]
+                a[e.name] = defaultColors[e.index % defaultColors.length]
                 return a
             }, {}))
         } else if (fileContent.format === 'csv') {
@@ -343,13 +345,13 @@ function App() {
             }
 
             setFullData(jsonData)
+            setColors(jsonData.nodes.reduce((a, e) => {
+                a[e.name] = defaultColors[e.index % defaultColors.length]
+                return a
+            }, {}))
             setSelTransfer(jsonData.circlenodes.map(e => e.name))
             setTopK(Math.min(100, jsonData.circlenodes.length))
             setSelOpt(range(jsonData.nodes.length))
-            setColors(jsonData.nodes.reduce((a, e) => {
-                a[e.index] = colors[e.index % colors.length]
-                return a
-            }, {}))
         }
     }, [fileContent])
 
@@ -642,7 +644,7 @@ function App() {
                                 tagRender={renderTag}
                             >
                                 {options.map(e => (
-                                    <Option value={e.value}  key={e.label} style={{background: colors[e.value]}}>
+                                    <Option value={e.value}  key={e.label} style={{background: colors[e.label]}}>
                                         {e.label}
                                     </Option>
                                 ))}
@@ -677,19 +679,18 @@ function App() {
                                         onChange={(value) => setRankType(value)}
                                         options={rankOptions}
                                         defaultValue="Rank Based"
-                                        style={{ width: 240 }}
                                     />
                                 </Col>
 
                                 <Col span={12}>
-                                    <InputNumber addonBefore='Min Rank:' style={{ width: 200 }} value={minRank} onChange={v => setMinRank(v)} />
+                                    <InputNumber addonBefore='Min Rank:' value={minRank} onChange={v => setMinRank(v)} />
                                 </Col>
                                 <Col span={12}>
-                                    <InputNumber addonBefore='Max Rank:' style={{ width: 200 }} value={maxRank} onChange={v => setMaxRank(v)} />
+                                    <InputNumber addonBefore='Max Rank:' value={maxRank} onChange={v => setMaxRank(v)} />
                                 </Col>
 
                                 <Col span={12}>
-                                    <InputNumber addonBefore='Step Size:' style={{ width: 200 }} value={stepSize} onChange={v => setStepSize(v)} />
+                                    <InputNumber addonBefore='Step Size:' value={stepSize} onChange={v => setStepSize(v)} />
                                 </Col>
                                 <Col span={12}>
                                     <Button onClick={rankType.includes('Rank') ? rankGenesSelector : lexGeneSelector}>Update Genes</Button>
@@ -723,29 +724,76 @@ function App() {
                             }
                             {console.log(colors)}
                         </Panel>
-                        <Panel header="Disease Colors: " key="44">
-                            <table>
-                                {saveData.nodes.map(e => {
-                                    return <tr>
-                                        <td><Text>{`${e.name}: `}</Text></td>
-                                        <td>
-                                            <ColorPicker
-                                                onChange={(f, ff) => {
-                                                    setColors({
-                                                        ...colors,
-                                                        [e.index]: ff
-                                                    })
-                                                }}
-                                                value={colors[e.index]}
-                                                showText
-                                            />
-                                        </td>
-                                    </tr>
-                                })}
+                        <Panel header="Cancer Colors: " key="44">
+                            <table style={{width: '100%'}}>
+                                <tr>
+                                    <td>
+                                        <Select
+                                            size='default'
+                                            placeholder="Please select"
+                                            // options={options}
+                                            value={colorSelect}
+                                            onChange={v => setColorSelect(v)}
+                                            style={{width: '75%'}}
+                                        >
+                                            {saveData.nodes.map(e => (
+                                                <Option value={e.name} key={e.name}>
+                                                    {e.name}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        <ColorPicker
+                                            onChange={(f, ff) => {
+                                                setColors({
+                                                    ...colors,
+                                                    [colorSelect]: ff
+                                                })
+                                            }}
+                                            value={colors[colorSelect]}
+                                            showText
+                                        />
+                                    </td>
+                                </tr>
                             </table>
                         </Panel>
-                        <Panel header="Other Colors: " key="44">
-                            <table>
+                        <Panel header="Gene Colors: " key="45">
+                        <table style={{width: '100%'}}>
+                                <tr>
+                                    <td>
+                                        <Select
+                                            size='default'
+                                            placeholder="Please select"
+                                            // options={options}
+                                            value={geneColorSelect}
+                                            onChange={v => setGeneColorSelect(v)}
+                                            style={{width: '75%'}}
+                                        >
+                                            {Object.keys(cmColors).map(e => (
+                                                <Option value={e} key={e}>
+                                                    {labels[e]}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                        <ColorPicker
+                                            onChange={(f, ff) => {
+                                                setCMColors({
+                                                    ...cmColors,
+                                                    [geneColorSelect]: ff
+                                                })
+                                            }}
+                                            value={cmColors[geneColorSelect]}
+                                            showText
+                                        />
+                                    </td>
+                                </tr>
+                            </table>
+                            {/* <table>
                                 {Object.keys(cmColors).map(e => {
                                     return <tr>
                                         <td><Text>{`${labels[e]}: `}</Text></td>
@@ -763,7 +811,7 @@ function App() {
                                         </td>
                                     </tr>
                                 })}
-                            </table>
+                            </table> */}
                         </Panel>
                     </Collapse>
                 </Sider>
