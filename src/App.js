@@ -1,6 +1,7 @@
 import './App.css';
-import React from 'react';
+import React, { useRef } from 'react';
 import RadTrix from './RadTrix';
+import * as htmlToImage from 'html-to-image';
 import { Button, Col, Collapse, ColorPicker, Input, InputNumber, Layout, PageHeader, Popover, Radio, Row, Select, Tag, Transfer, Typography, Upload, message } from 'antd';
 import { CopyrightOutlined, InfoCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { color, defaultColors, labels } from './helpers';
@@ -46,6 +47,9 @@ const siderStyle = {
     fontSize: '16px',
     margin: '5px',
     fontFamily: 'Arial, sans-serif',
+    overflow: 'auto',
+    height: '100vh',
+    // position: 'fixed',`
 };
 
 // const footerStyle = {
@@ -92,6 +96,43 @@ const layoutStyle = {
 let check = -1;
 
 function App() {
+
+    const svgRef = useRef(null);
+    const legendRef = useRef(null);
+
+    const handleExport = () => {
+        if (svgRef.current && legendRef.current) {
+            Promise.all([
+                htmlToImage.toPng(svgRef.current, { pixelRatio: 3 }),
+                htmlToImage.toPng(legendRef.current, { pixelRatio: 3 })
+            ]).then(images => {
+                const canvas = document.createElement('canvas')
+                const ctx = canvas.getContext('2d')
+
+                const img1 = new Image()
+                img1.src = images[0]
+
+                const img2 = new Image()
+                img2.src = images[1]
+
+                img1.onload = () => {
+                    canvas.width = img1.width + img2.width;
+                    canvas.height = Math.max(img1.height, img2.height);
+                    ctx.drawImage(img1, 0, 0);
+            
+                    img2.onload = () => {
+                        ctx.drawImage(img2, img1.width, 0);
+                
+                        // Trigger download of the composite image
+                        const link = document.createElement('a');
+                        link.download = 'composite_image.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                    };
+                };
+            })
+        }
+    }
     
     const getIndex = useRecoilValue(getIndexSelector);
     const [colors, setColors] = useRecoilState(colorsAtom);
@@ -260,6 +301,7 @@ function App() {
     const [minRank, setMinRank] = React.useState(1)
     const [maxRank, setMaxRank] = React.useState(100)
     const [stepSize, setStepSize] = React.useState(1)
+    const [topKGeneCheck, setTopKGeneCheck] = React.useState(false)
     const [circleNodes, circleEdges] = useRecoilValue(circleSelector);
     const [colorSelect, setColorSelect] = React.useState(saveData.nodes[0].name);
     const [geneColorSelect, setGeneColorSelect] = React.useState(Object.keys(labels)[0])
@@ -389,48 +431,40 @@ function App() {
             return true;
         })
 
-        const processList = (d) => {
-            const result = {};
-        
-            for (let i = 0; i < d.length; i++) {
-                const target1 = d[i].target;
+        const generateLinks = () => {
+            const n = newData.nodes.length;
+            const lSet = [];
+            for (let i = 0; i < n; i++) lSet.push([]);
+            
+            newData.circleedges.map(e => {
+                lSet[currentIndex[e.target]].push(e.source);
+            })
 
-                result[`${target1},${target1}`] = {
-                    source: currentIndex[target1],
-                    target: currentIndex[target1],
-                    value: newData.circleedges.filter(e => e.target === target1).length,
-                };
-            
-                for (let j = i + 1; j < d.length; j++) {
-                    const target2 = d[j].target;
-            
-                    if (target1 !== target2) {
-                        if (!result[`${target1},${target2}`]) {
-                            result[`${target1},${target2}`] = {
-                                source: currentIndex[target1],
-                                target: currentIndex[target2],
-                                value: 0,
-                            };
-                        }
-                        if (!result[`${target2},${target1}`]) {
-                            result[`${target2},${target1}`] = {
-                                source: currentIndex[target2],
-                                target: currentIndex[target1],
-                                value: 0,
-                            };
-                        }
-                        if (d[i].source === d[j].source) {
-                            result[`${target1},${target2}`].value += 1;
-                            result[`${target2},${target1}`].value += 1;
-                        }
+            const links = []
+
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    if (i === j) {
+                        links.push({
+                            source: i,
+                            target: j,
+                            value: lSet[i].length
+                        })
+                    } else {
+                        intersection(lSet[i], lSet[j])
+                        links.push({
+                            source: i,
+                            target: j,
+                            value: intersection(lSet[i], lSet[j]).length
+                        })
                     }
                 }
             }
-        
-            return Object.values(result).sort((a, b) => a.source === b.source ? a.target - b.target : a.source - b.source);
-        };    
 
-        newData.links = processList(newData.circleedges)
+            newData.links = links;
+        }
+
+        generateLinks()
 
         if (newData.circlenodes.length !== selTransfer.length) {
             setSelTransfer(newData.circlenodes.map(e => e.name))
@@ -471,7 +505,9 @@ function App() {
             if (cnt === 0) return false;
             return true;
         });
+        newData.circlenodes = newData.circlenodes.sort((a, b) => a.rank - b.rank)
         newData.circlenodes = newData.circlenodes.slice(0, Math.min(topK, newData.circlenodes.length))
+        // newData.circlenodes = newData.circlenodes.filter(e => (0 < e.rank) && (e.rank <= Math.min(topK, newData.circlenodes.length)))
         // console.log(newData.circlenodes)
         newData.circleedges = newData.circleedges.filter(e => newData.circlenodes.findIndex(f => f.name === e.source) !== -1);
         
@@ -596,16 +632,19 @@ function App() {
             <Header style={headerStyle}>
                 RadTrixVis
             </Header>
-            <Layout>
+            <Layout hasSider>
                 <Sider width="25%" style={siderStyle}>
+                    {/* <div>
+                        <Button>Reset</Button>
+                    </div> */}
                     <Collapse>
                         <Title level={3}>Data</Title>
-                        <Panel header="Main Data:" key="0">
+                        <Panel header="Phenotype Specific Filtering" key="0">
                             <div>
                                 <Radio.Group onChange={selectedDataCallback} value={selectedData}>
-                                    <Radio value={1}>Augmented Correlation</Radio>
-                                    <Radio value={2}>Graph Based</Radio>
-                                    <Radio value={3}>Custom Load</Radio>
+                                    <Radio value={1}>Correlation-Based</Radio>
+                                    <Radio value={2}>Network-Based</Radio>
+                                    <Radio value={3}>New Input Data</Radio>
                                 </Radio.Group>
                             </div>
                             {selectedData === 3 && 
@@ -624,10 +663,10 @@ function App() {
                                 </div>
                             }
                             <div>
-                                <Button onClick={changeMainData} icon={<UploadOutlined />}>Load Data</Button>
+                                <Button onClick={changeMainData} icon={<UploadOutlined />}>Update Data</Button>
                             </div>
                         </Panel>
-                        <Panel header="Cancer Type: " key="1">
+                        <Panel header="Disease Phenotype" key="1">
                             <Select
                                 mode='tags'
                                 size='default'
@@ -650,7 +689,7 @@ function App() {
                                 ))}
                             </Select>
                         </Panel>
-                        <Panel header="Cancer Genes: " key="2">
+                        <Panel header="Genes" key="2">
                             <Transfer 
                                 dataSource={transferData}
                                 showSearch
@@ -665,11 +704,11 @@ function App() {
                                 filterOption={(i, o) => o.title.toUpperCase().indexOf(i.toUpperCase()) > -1}
                             />
                         </Panel>
-                        <Panel header="Top K Genes: " key="5">
+                        <Panel header="Top K Genes" key="5">
                             <InputNumber min={4} max={fullData.circlenodes.length} value={topK} onChange={e => setTopK(e)} />
-                            <Button onClick={topKGenesSelector}>Select Top K Genes</Button>
+                            <Button onClick={topKGenesSelector}>Update Selection</Button>
                         </Panel>
-                        <Panel header="Gene Selection: " key="6">
+                        <Panel header="Customized Gene Selection" key="6">
                             <Row gutter={[8, 8]}>
                                 <Col span={12}>
                                     <Typography.Text>Ranking Type: </Typography.Text>
@@ -693,7 +732,7 @@ function App() {
                                     <InputNumber addonBefore='Step Size:' value={stepSize} onChange={v => setStepSize(v)} />
                                 </Col>
                                 <Col span={12}>
-                                    <Button onClick={rankType.includes('Rank') ? rankGenesSelector : lexGeneSelector}>Update Genes</Button>
+                                    <Button onClick={rankType.includes('Rank') ? rankGenesSelector : lexGeneSelector}>Update Selection</Button>
                                 </Col>
                             </Row>
                         </Panel>
@@ -701,9 +740,11 @@ function App() {
                             <Button onClick={downloadJsonFile}>Download Data (JSON)</Button>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <Button onClick={downloadCsvFile}>Download Data (CSV)</Button>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <Button onClick={handleExport}>Download Image</Button>
                         </Panel>
                         <Title level={3}>Aesthetics</Title>
-                        <Panel header="Cancer Colors: " key="44">
+                        <Panel header="Phenotype Color Selection" key="44">
                             <table style={{width: '100%'}}>
                                 <tr>
                                     <td>
@@ -738,7 +779,7 @@ function App() {
                                 </tr>
                             </table>
                         </Panel>
-                        <Panel header="Gene Colors: " key="45">
+                        <Panel header="Gene Color Selection" key="45">
                             <table style={{width: '100%'}}>
                                 <tr>
                                     <td>
@@ -773,13 +814,13 @@ function App() {
                                 </tr>
                             </table>
                         </Panel>
-                        <Panel header="Edge Type: " key="3">
+                        {/* <Panel header="Edge Type: " key="3">
                             <Radio.Group onChange={e => setEdgeType(e.target.value)} value={edgeType}>
                                 <Radio value={1}>Straight Edges</Radio>
                                 <Radio value={2}>Curved Edges</Radio>
                             </Radio.Group>
-                        </Panel>
-                        <Panel header="Node Ordering: " key="4">
+                        </Panel> */}
+                        <Panel header="Node Ordering" key="4">
                             {edgeType === 2 ? 
                                 <Radio.Group onChange={e => setOrderType(e.target.value)} value={orderType}>
                                     <Radio value={1}>Barycentric ordering</Radio>
@@ -797,7 +838,7 @@ function App() {
                 </Sider>
                 <Content style={contentStyle}>
                     <div> 
-                        <RadTrix />
+                        <RadTrix svgRef={svgRef} legendRef={legendRef} handleExport={handleExport} />
                     </div>
                 </Content>
             </Layout>

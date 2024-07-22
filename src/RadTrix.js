@@ -8,9 +8,9 @@ import { dradius, circleSelector, colorScaleSelector, edgeTypeAtom, matrixScaleS
 import { Button, Tooltip } from 'antd';
 import { DownloadOutlined, QuestionOutlined } from '@ant-design/icons';
 
-function RadTrix() {
-    const svgRef = useRef(null);
-    const legendRef = useRef(null);
+function RadTrix({ svgRef, legendRef, handleExport }) {
+    // const svgRef = useRef(null);
+    // const legendRef = useRef(null);
 
     const matrixScale = useRecoilValue(matrixScaleSelector);
     const opacityScale = useRecoilValue(opacityScaleSelector);
@@ -40,39 +40,39 @@ function RadTrix() {
     //     }
     // }
 
-    const handleExport = () => {
-        if (svgRef.current && legendRef.current) {
-            Promise.all([
-                htmlToImage.toPng(svgRef.current, { pixelRatio: 3 }),
-                htmlToImage.toPng(legendRef.current, { pixelRatio: 3 })
-            ]).then(images => {
-                const canvas = document.createElement('canvas')
-                const ctx = canvas.getContext('2d')
+    // const handleExport = () => {
+    //     if (svgRef.current && legendRef.current) {
+    //         Promise.all([
+    //             htmlToImage.toPng(svgRef.current, { pixelRatio: 3 }),
+    //             htmlToImage.toPng(legendRef.current, { pixelRatio: 3 })
+    //         ]).then(images => {
+    //             const canvas = document.createElement('canvas')
+    //             const ctx = canvas.getContext('2d')
 
-                const img1 = new Image()
-                img1.src = images[0]
+    //             const img1 = new Image()
+    //             img1.src = images[0]
 
-                const img2 = new Image()
-                img2.src = images[1]
+    //             const img2 = new Image()
+    //             img2.src = images[1]
 
-                img1.onload = () => {
-                    canvas.width = img1.width + img2.width;
-                    canvas.height = Math.max(img1.height, img2.height);
-                    ctx.drawImage(img1, 0, 0);
+    //             img1.onload = () => {
+    //                 canvas.width = img1.width + img2.width;
+    //                 canvas.height = Math.max(img1.height, img2.height);
+    //                 ctx.drawImage(img1, 0, 0);
             
-                    img2.onload = () => {
-                        ctx.drawImage(img2, img1.width, 0);
+    //                 img2.onload = () => {
+    //                     ctx.drawImage(img2, img1.width, 0);
                 
-                        // Trigger download of the composite image
-                        const link = document.createElement('a');
-                        link.download = 'composite_image.png';
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                    };
-                };
-            })
-        }
-    }
+    //                     // Trigger download of the composite image
+    //                     const link = document.createElement('a');
+    //                     link.download = 'composite_image.png';
+    //                     link.href = canvas.toDataURL('image/png');
+    //                     link.click();
+    //                 };
+    //             };
+    //         })
+    //     }
+    // }
 
     const mouseOverCircle = src => {
         const lines = (edgeType === 1) ? d3.selectAll('line.edge')._groups[0] : d3.selectAll('path.path')._groups[0];
@@ -99,18 +99,62 @@ function RadTrix() {
         d3.selectAll(".row text").classed("active", (d, i) => { return i === src.y; });
         d3.selectAll(".column text").classed("active", (d, i) => { return i === src.x; });
         const lines = (edgeType === 1) ? d3.selectAll('line.edge')._groups[0] : d3.selectAll('path.path')._groups[0];
+        const nodes = d3.selectAll('circle.node')._groups[0];
+        const t = {}
         lines.forEach(e => {
             const target = e.getAttribute('targ');
+            const src = e.getAttribute('source');
             if ((target === n1) || (target === n2)) {
-                e.style.strokeWidth = 2;
+                if(!(src in t)) {
+                    t[src] = 1;
+                } else {
+                    t[src] += 1;
+                }
+            }
+        })
+        lines.forEach(e => {
+            const target = e.getAttribute('targ');
+            const source = e.getAttribute('source');
+            if (n1 === n2) {
+                if ((target === n1) || (target === n2)) {
+                    e.style.strokeWidth = 2;
+                } else {
+                    e.style.strokeWidth = 0;
+                }
             } else {
-                e.style.strokeWidth = 0.2;
+                if (((target === n1) || (target === n2))) {
+                    if (t[source] === 2) e.style.strokeWidth = 2;
+                    else e.style.strokeWidth = 0.5;
+                } else {
+                    e.style.strokeWidth = 0;
+                }
+            }
+        })
+        nodes.forEach(e => {
+            const name = e.getAttribute('id')
+            console.log(name)
+            if (n1 === n2) {
+                if (name in t) {
+                    e.style.fill = 'blue'
+                    e.style.stroke = 'blue'
+                }
+            } else {
+                if (name in t) {
+                    if (t[name] === 2) {
+                        e.style.fill = 'blue'
+                        e.style.stroke = 'blue'
+                    } else {
+                        e.style.fill = 'violet'
+                        e.style.stroke = 'violet'
+                    }
+                }
             }
         })
     }
 
     const mouseOut = () => {
         const lines = (edgeType === 1) ? d3.selectAll('line.edge')._groups[0] : d3.selectAll('path.path')._groups[0];
+        const nodes = d3.selectAll('circle.node')._groups[0];
         const nodeText = d3.selectAll('text.nodetext')._groups[0];
         d3.selectAll(".row text").classed("active", (d, i) => { return false; });
         d3.selectAll(".column text").classed("active", (d, i) => { return false; });
@@ -119,6 +163,10 @@ function RadTrix() {
         })
         nodeText.forEach(e => {
             e.style.fontSize = '10px';
+        })
+        nodes.forEach(e => {
+            e.style.fill = 'red'
+            e.style.stroke = 'red'
         })
     }
 

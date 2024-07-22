@@ -356,7 +356,7 @@ export const circleSelector = selector({
             circleEdges.forEach(f => f.source === e.name ? cnt += 1 : null)
             deg_c_nodes[e.name] = cnt;
         })
-        ordered_c_nodes.sort((a, b) => deg_c_nodes[a.name] - deg_c_nodes[b.name] === 0 ? a.rank - b.rank : deg_c_nodes[a.name] - deg_c_nodes[b.name])
+        ordered_c_nodes.sort((a, b) => deg_c_nodes[a.name] - deg_c_nodes[b.name] === 0 ? b.rank - a.rank : deg_c_nodes[a.name] - deg_c_nodes[b.name])
         lexico_c_nodes.sort((a, b) => a.name.localeCompare(b.name))
         const shuffled_c_nodes = shuffle(ordered_c_nodes)
 
