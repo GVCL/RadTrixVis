@@ -1,4 +1,4 @@
-# RadTrix: A Composite Hybrid Visualization for Unbalanced Bipartite Graphs in Biological Datasets
+# RadTrixVis: A Dashboard for Visualizing An Unbalanced Bipartite Graph
 _If you use this code in your work, please cite it as follows:_
 
 Reddy Rani Vangimalla, and J. Sreevalsan-Nair, "RadTrix: A Composite Hybrid Visualization for
