@@ -10,3 +10,5 @@ Conference proceedings.
 ## To launch the dashboard
 
 https://gvcl.github.io/RadTrixVis/
+
+## User Manual for RadTrixVis
