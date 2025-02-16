@@ -6,3 +6,7 @@ Unbalanced Bipartite Graphs in Biological Datasets," 9th Eurographics Workshop o
 Conference proceedings.
 
 ## Instructions to run the code
+
+## To launch the dashboard
+
+https://gvcl.github.io/RadTrixVis/
