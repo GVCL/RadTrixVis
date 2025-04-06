@@ -7,7 +7,7 @@ import { CopyrightOutlined, InfoCircleOutlined, UploadOutlined } from '@ant-desi
 import { color, defaultColors, labels } from './helpers';
 import Papa from 'papaparse';
 import { data as data2 } from './data2';
-import { data as data3 } from './data3';
+import { data, data as data3 } from './data3';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { circleNodeSortedIdx, circleSelector, currentIndexAtom, dataAtom, edgeTypeAtom, fullDataAtom, orderTypeAtom, getIndexSelector, optionsSelector, colorsAtom, cmColorsAtom } from './state';
 import { cloneDeep, range, intersection } from 'lodash';
@@ -139,6 +139,9 @@ function App() {
     const [cmColors, setCMColors] = useRecoilState(cmColorsAtom);
     const options = useRecoilValue(optionsSelector);
 
+    const [smallSetName, setSmallSetName] = React.useState('Phenotype');
+    const [largeSetName, setLargeSetName] = React.useState('Genes');
+
     const rankOptions = [
         {
             value: 'Rank Based',
@@ -154,9 +157,6 @@ function App() {
 
     const renderTag = v => {
         return (
-            // <span style={{color: color[v.value], backgroundColor: '#f5f5f5', padding: '4px', margin: '4px', borderRadius: '10px'}}>
-            //     {v.label} 
-            // </span>
             <Tag
                 style={{background: colors[v.label]}}
             >
@@ -639,7 +639,7 @@ function App() {
                     </div> */}
                     <Collapse>
                         <Title level={3}>Data</Title>
-                        <Panel header="Phenotype Specific Filtering" key="0">
+                        <Panel header={smallSetName + " Specific Filtering"} key="0">
                             <div>
                                 <Radio.Group onChange={selectedDataCallback} value={selectedData}>
                                     <Radio value={1}>Correlation-Based</Radio>
@@ -666,7 +666,7 @@ function App() {
                                 <Button onClick={changeMainData} icon={<UploadOutlined />}>Update Data</Button>
                             </div>
                         </Panel>
-                        <Panel header="Disease Phenotype" key="1">
+                        <Panel header={smallSetName} key="1">
                             <Select
                                 mode='tags'
                                 size='default'
@@ -677,19 +677,33 @@ function App() {
                                     if (e.length > 0) {
                                         check = 0
                                         setSelOpt([...e])
+                                    } else {
+                                        alert('Ensure atleast 1 phenotype in the pool.')
                                     }
                                 }}
                                 style={{width: '100%'}}
                                 tagRender={renderTag}
+                                menuItemSelectedIcon={null}
+                                allowClear
+                                clearIcon={
+                                    <span
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation()
+                                            setSelOpt(Array.from({length: data.nodes.length}).map((_, i) => i))
+                                        }} // Prevent default clear behavior
+                                    >
+                                        ❌
+                                    </span>
+                                }
                             >
                                 {options.map(e => (
-                                    <Option value={e.value}  key={e.label} style={{background: colors[e.label]}}>
+                                    <Option value={e.value} key={e.label} style={{background: (selOpt.findIndex(v => v === e.value) !== -1) ? colors[e.label] : 'white'}}>
                                         {e.label}
                                     </Option>
                                 ))}
                             </Select>
                         </Panel>
-                        <Panel header="Genes" key="2">
+                        <Panel header={largeSetName} key="2">
                             <Transfer 
                                 dataSource={transferData}
                                 showSearch
@@ -704,11 +718,11 @@ function App() {
                                 filterOption={(i, o) => o.title.toUpperCase().indexOf(i.toUpperCase()) > -1}
                             />
                         </Panel>
-                        <Panel header="Top K Genes" key="5">
+                        <Panel header={"Top K " + largeSetName} key="5">
                             <InputNumber min={4} max={fullData.circlenodes.length} value={topK} onChange={e => setTopK(e)} />
                             <Button onClick={topKGenesSelector}>Update Selection</Button>
                         </Panel>
-                        <Panel header="Customized Gene Selection" key="6">
+                        <Panel header={"Customized " + largeSetName + " Selection"} key="6">
                             <Row gutter={[8, 8]}>
                                 <Col span={12}>
                                     <Typography.Text>Ranking Type: </Typography.Text>
@@ -744,7 +758,7 @@ function App() {
                             <Button onClick={handleExport}>Download Image</Button>
                         </Panel>
                         <Title level={3}>Aesthetics</Title>
-                        <Panel header="Phenotype Color Selection" key="44">
+                        <Panel header={smallSetName + " Color Selection"} key="44">
                             <table style={{width: '100%'}}>
                                 <tr>
                                     <td>
@@ -779,7 +793,7 @@ function App() {
                                 </tr>
                             </table>
                         </Panel>
-                        <Panel header="Gene Color Selection" key="45">
+                        <Panel header={largeSetName + " Color Selection"} key="45">
                             <table style={{width: '100%'}}>
                                 <tr>
                                     <td>
@@ -833,6 +847,12 @@ function App() {
                                     <Radio value={3}>Lexicographically order</Radio>
                                 </Radio.Group>
                             }
+                        </Panel>
+                        <Panel header="Set Label Customization" key="8">
+                            <Text>Label of the Smaller Set: </Text> 
+                            <Input value={smallSetName} onChange={e => setSmallSetName(e.target.value.trim())} />
+                            <Text>Label of the Larger Set: </Text> 
+                            <Input value={largeSetName} onChange={e => setLargeSetName(e.target.value.trim())} />
                         </Panel>
                     </Collapse>
                 </Sider>

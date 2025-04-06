@@ -5,8 +5,8 @@ export const radiansToX = (radians, radius) => Math.sin(radians) * radius;
 export const radiansToY = (radians, radius) => Math.cos(radians) * -radius;
 
 export const getIndex = { 'BRCA': 0, 'KICH': 1, 'KIRC': 2, 'KIRP': 3, 'LUSC': 4, 'PAAD': 5, 'STAD': 6 };
-export const color = { 0: '#e41a1c', 1: '#377eb8', 2: '#4daf4a', 3: '#984ea3', 4: '#ff7f00', 5: '#ffff33', 6: '#a65628' };
-export const defaultColors = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#ffff99','#b15928']
+export const color = { 0: '#66c2a5', 1: '#fc8d62', 2: '#8da0cb', 3: '#e78ac3', 4: '#a6d854', 5: '#ffd92f', 6: '#e5c494' };
+export const defaultColors = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#e5c494','#b3b3b3'] 
 export const labels = {
     circlenodes: 'Circle Nodes',
     matrixDiagonal: 'Matrix Diagonal',

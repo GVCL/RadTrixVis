@@ -20,6 +20,8 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
     const [circleNodes, circleEdges] = useRecoilValue(circleSelector);
     const edgeType = useRecoilValue(edgeTypeAtom);
 
+    const selectedSummary = useRef(null);
+
     const radius = useRecoilValue(dradius);
     const oradius = useRecoilValue(dOuterRadius);
 
@@ -112,12 +114,14 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                 }
             }
         })
+        let numEdges = 0;
         lines.forEach(e => {
             const target = e.getAttribute('targ');
             const source = e.getAttribute('source');
             if (n1 === n2) {
                 if ((target === n1) || (target === n2)) {
                     e.style.strokeWidth = 2;
+                    numEdges += 1;
                 } else {
                     e.style.strokeWidth = 0;
                 }
@@ -125,6 +129,7 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                 if (((target === n1) || (target === n2))) {
                     if (t[source] === 2) e.style.strokeWidth = 2;
                     else e.style.strokeWidth = 0.5;
+                    numEdges += 1;
                 } else {
                     e.style.strokeWidth = 0;
                 }
@@ -132,14 +137,11 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
         })
         nodes.forEach(e => {
             const name = e.getAttribute('id')
-            console.log(name)
-            if (n1 === n2) {
-                if (name in t) {
+            if (name in t) {
+                if (n1 === n2) {
                     e.style.fill = 'blue'
                     e.style.stroke = 'blue'
-                }
-            } else {
-                if (name in t) {
+                } else {
                     if (t[name] === 2) {
                         e.style.fill = 'blue'
                         e.style.stroke = 'blue'
@@ -150,6 +152,22 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                 }
             }
         })
+        selectedSummary.current.innerHTML = `
+            <div style="position: absolute; top: 125px; right: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100; width: 150px; font-family: Arial, sans-serif;">
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; color: #495057;">RadTrix Summary</div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px;">
+                    <span>Nodes:</span>
+                    <span style="color: #0d6efd; font-weight: bold;">${Object.keys(t).length}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px;">
+                    <span>Matrix Rows:</span>
+                    <span style="color: #0d6efd; font-weight: bold;">${n1 === n2 ? 1 : 2}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                    <span>Edges:</span>
+                    <span style="color: #0d6efd; font-weight: bold;">${numEdges}</span>
+                </div>
+            </div>`;
     }
 
     const mouseOut = () => {
@@ -168,6 +186,8 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
             e.style.fill = 'red'
             e.style.stroke = 'red'
         })
+
+        selectedSummary.current.innerHTML = '';
     }
 
     return (
@@ -244,7 +264,6 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                         type="primary"
                         icon={<QuestionOutlined style={{ color: 'blue' }} />}
                         style={{ background: 'transparent', border: 'none' }}
-                        onClick={handleExport}
                     />
                 </Tooltip>
                 <Tooltip title='Download Image' placement='left'>
@@ -257,7 +276,37 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                 </Tooltip>
             </div>
             {matrix &&
-            <div ref={svgRef}>
+            <div ref={svgRef} style={{ position: 'relative' }}>
+                <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    backgroundColor: '#f8f9fa',
+                    border: '1px solid #dee2e6',
+                    borderRadius: '5px',
+                    padding: '10px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    zIndex: 100,
+                    width: '150px'
+                }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '12px', color: '#495057' }}>
+                        RadTrix Summary
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '5px' }}>
+                        <span>Nodes:</span>
+                        <span style={{ color: '#0d6efd', fontWeight: 'bold' }}>{circleNodes.length}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '5px' }}>
+                        <span>Matrix Rows:</span>
+                        <span style={{ color: '#0d6efd', fontWeight: 'bold' }}>{matrix.length}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                        <span>Edges:</span>
+                        <span style={{ color: '#0d6efd', fontWeight: 'bold' }}>{circleEdges.length}</span>
+                    </div>
+                </div>
+                <div ref={selectedSummary}></div>
+                
             <svg
                 width={2.4 * radius}
                 height={(2.45 - (0.08 * (radius / 550))) * radius}
