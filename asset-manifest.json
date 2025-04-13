@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/RadTrixVis/static/css/main.7853e224.css",
-    "main.js": "/RadTrixVis/static/js/main.74353f1b.js",
+    "main.js": "/RadTrixVis/static/js/main.be3256fe.js",
     "static/js/787.86605eb5.chunk.js": "/RadTrixVis/static/js/787.86605eb5.chunk.js",
     "index.html": "/RadTrixVis/index.html",
     "main.7853e224.css.map": "/RadTrixVis/static/css/main.7853e224.css.map",
-    "main.74353f1b.js.map": "/RadTrixVis/static/js/main.74353f1b.js.map",
+    "main.be3256fe.js.map": "/RadTrixVis/static/js/main.be3256fe.js.map",
     "787.86605eb5.chunk.js.map": "/RadTrixVis/static/js/787.86605eb5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.7853e224.css",
-    "static/js/main.74353f1b.js"
+    "static/js/main.be3256fe.js"
   ]
 }
