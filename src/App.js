@@ -2,7 +2,7 @@ import './App.css';
 import React, { useRef } from 'react';
 import RadTrix from './RadTrix';
 import * as htmlToImage from 'html-to-image';
-import { Button, Col, Collapse, ColorPicker, Input, InputNumber, Layout, PageHeader, Popover, Radio, Row, Select, Tag, Transfer, Typography, Upload, message } from 'antd';
+import { Button, Col, Collapse, ColorPicker, Input, InputNumber, Layout, PageHeader, Popover, Radio, Row, Select, Tag, Tooltip, Transfer, Typography, Upload, message } from 'antd';
 import { CopyrightOutlined, InfoCircleOutlined, UploadOutlined } from '@ant-design/icons';
 import { color, defaultColors, labels } from './helpers';
 import Papa from 'papaparse';
@@ -93,12 +93,11 @@ const layoutStyle = {
     overflow: 'hidden',
 };
 
-let check = -1;
-
 function App() {
 
     const svgRef = useRef(null);
     const legendRef = useRef(null);
+    const checkRef = useRef(-1);
 
     const handleExport = () => {
         if (svgRef.current && legendRef.current) {
@@ -401,7 +400,7 @@ function App() {
         const newData = cloneDeep(fullData);
 
         // Handling Changes to Circle Nodes
-        if (check === 1 || check === -1) {
+        if (checkRef.current === 1 || checkRef.current === -1) {
             newData.circlenodes = newData.circlenodes.filter(e => selTransfer.findIndex(f => f === e.name) !== -1);
             newData.circleedges = newData.circleedges.filter(e => selTransfer.findIndex(f => f === e.source) !== -1);
         }
@@ -473,14 +472,14 @@ function App() {
         setData(newData);
         setCurrentIndex(currentIndex);
 
-        if (check === -1) {
-            check = 1
+        if (checkRef.current === -1) {
+            checkRef.current = 1
             topKGenesSelector()
         }
     }, [selOpt, selTransfer, fullData, setData, setCurrentIndex]);
 
     const topKGenesSelector = () => {
-        check = 1
+        checkRef.current = 1
         const newData = cloneDeep(fullData);
 
         // Handling the changes to the Square Nodes
@@ -542,7 +541,7 @@ function App() {
     }
 
     const rankGenesSelector = () => {
-        check = 1
+        checkRef.current = 1
         const circleNodeRanks = parseArrString(`${minRank}:${maxRank}:${stepSize}`)
         // console.log(circleNodeRanks)
         if (circleNodeRanks.length < 4) {
@@ -584,7 +583,7 @@ function App() {
     }
 
     const lexGeneSelector = () => {
-        check = 1
+        checkRef.current = 1
         const lexNodeRanks = parseArrString(`${minRank}:${maxRank}:${stepSize}`)
 
         const circleNodeRanks = lexNodeRanks.map(i => cnsi[i][0])
@@ -666,7 +665,23 @@ function App() {
                                 <Button onClick={changeMainData} icon={<UploadOutlined />}>Update Data</Button>
                             </div>
                         </Panel>
-                        <Panel header={smallSetName} key="1">
+                        <Panel header={
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
+                                <span style={{width: '20px'}}></span> {/* Spacer on the left */}
+                                <Text style={{flex: 1, textAlign: 'center'}}>{smallSetName} Selection</Text>
+                                <Popover 
+                                    content={<div style={{width: 300}}>
+                                        <p>Use this to select the {smallSetName}(s) you want to visualize.</p>
+                                        <p>1. Click on the {smallSetName} name to select/deselect it.</p>
+                                        <p>2. Click on ❌ (visible on hovering) to select all {smallSetName}.</p>
+                                    </div>} 
+                                    placement="right"
+                                    trigger="hover"
+                                >
+                                    <InfoCircleOutlined />
+                                </Popover>
+                            </div>
+                        } key="1">
                             <Select
                                 mode='tags'
                                 size='default'
@@ -675,7 +690,7 @@ function App() {
                                 value={selOpt}
                                 onChange={e => {
                                     if (e.length > 0) {
-                                        check = 0
+                                        checkRef.current = -1
                                         setSelOpt([...e])
                                     } else {
                                         alert('Ensure atleast 1 phenotype in the pool.')
@@ -692,7 +707,53 @@ function App() {
                                             setSelOpt(Array.from({length: data.nodes.length}).map((_, i) => i))
                                         }} // Prevent default clear behavior
                                     >
-                                        ❌
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="30"
+                                            height="30"
+                                            viewBox="0 0 100 100"
+                                        >
+                                            {/* <!-- Shift whole group to top-left --> */}
+                                            <g transform="translate(-15, -15)">
+                                            {/* <!-- Circular arrows --> */}
+                                            <path
+                                                d="M20 50a30 30 0 1 1 6 18"
+                                                fill="none"
+                                                stroke="black"
+                                                strokeWidth="4"
+                                                strokeLinecap="round"
+                                            />
+                                            <polyline
+                                                points="18 30 28 30 28 40"
+                                                fill="none"
+                                                stroke="black"
+                                                strokeWidth="4"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+                                            <polyline
+                                                points="82 70 72 70 72 60"
+                                                fill="none"
+                                                stroke="black"
+                                                strokeWidth="4"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            />
+
+                                            {/* <!-- Text --> */}
+                                            <text
+                                                x="50"
+                                                y="50"
+                                                textAnchor="middle"
+                                                fontSize="16"
+                                                fontWeight="bold"
+                                                fill="black"
+                                                dominantBaseline="middle"
+                                            >
+                                                RESET
+                                            </text>
+                                            </g>
+                                        </svg>
                                     </span>
                                 }
                             >
@@ -703,7 +764,27 @@ function App() {
                                 ))}
                             </Select>
                         </Panel>
-                        <Panel header={largeSetName} key="2">
+                        <Panel 
+                            header={
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
+                                    <Text style={{flex: 1, textAlign: 'center'}}>{largeSetName} Selection</Text>
+                                    <Popover 
+                                        content={<div style={{width: 300}}>
+                                            <p>This panel allows you to filter {largeSetName} in the visualization.</p>
+                                            <p>• <strong>Left side</strong>: Available {largeSetName} (hidden from view)</p>
+                                            <p>• <strong>Right side</strong>: Selected {largeSetName} (shown in the visualization)</p>
+                                            <p>• Use the search box to find a specific {largeSetName} by name or rank</p>
+                                            <p>• At least 4 {largeSetName} must be selected for visualization</p>
+                                        </div>} 
+                                        placement="right"
+                                        trigger="hover"
+                                    >
+                                        <InfoCircleOutlined />
+                                    </Popover>
+                                </div>
+                            } 
+                            key="2"
+                        >
                             <Transfer 
                                 dataSource={transferData}
                                 showSearch
@@ -711,7 +792,7 @@ function App() {
                                 listStyle={{width: '43%', height: 400}}
                                 targetKeys={selTransfer}
                                 onChange={e => {
-                                    check = 1
+                                    checkRef.current = 1
                                     e.length >= 4 ? setSelTransfer([...e]) : alert('Ensure atleast 4 genes in the pool.')
                                 }}
                                 titles={['Hidden', 'Shown']}

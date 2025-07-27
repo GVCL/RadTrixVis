@@ -153,8 +153,8 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
             }
         })
         selectedSummary.current.innerHTML = `
-            <div style="position: absolute; top: 125px; right: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100; width: 150px; font-family: Arial, sans-serif;">
-                <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; color: #495057;">RadTrix Summary</div>
+            <div style="position: absolute; top: 125px; left: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100; width: 150px; font-family: Arial, sans-serif;">
+                <div style="font-weight: bold; margin-bottom: 8px; font-size: 12px; color: #495057;">Highlighted Summary</div>
                 <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px;">
                     <span>Nodes:</span>
                     <span style="color: #0d6efd; font-weight: bold;">${Object.keys(t).length}</span>
@@ -231,7 +231,7 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                                 }, []).map((e, index) => (
                                     <g key={`circle-${index}`}>
                                         <circle cx={30} cy={20 + index * 40} r={e.r} fill={e.fillStroke} stroke={e.fillStroke} />
-                                        <text x={50} y={25 + index * 40} fill="black">Node Degree: {e.nodeDegree}</text>
+                                        <text x={50} y={25 + index * 40} fill="black" fontWeight="bold">Node Degree: {e.nodeDegree}</text>
                                     </g>
                                 ))}
                                 {circleEdges.reduce((u, i) => {
@@ -241,8 +241,8 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                                     return u;
                                 }, []).map((e, index) => (
                                     <g key={`line-${e.target}`}>
-                                        <line x1={30} y1={200 + index * 30} x2={70} y2={200 + index * 30} stroke={e.stroke} />
-                                        <text x={80} y={205 + index * 30} fill={e.stroke}>{e.target}</text>
+                                        <line x1={30} y1={200 + index * 30} x2={70} y2={200 + index * 30} stroke={e.stroke} strokeWidth={4} />
+                                        <text x={80} y={205 + index * 30} fill={e.stroke} fontWeight="bold">{e.target}</text>
                                     </g>
                                 ))}
                             </svg>
@@ -280,7 +280,7 @@ function RadTrix({ svgRef, legendRef, handleExport }) {
                 <div style={{
                     position: 'absolute',
                     top: '10px',
-                    right: '10px',
+                    left: '10px',
                     backgroundColor: '#f8f9fa',
                     border: '1px solid #dee2e6',
                     borderRadius: '5px',
