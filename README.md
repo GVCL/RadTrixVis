@@ -132,15 +132,24 @@ RadTrixVis supports multiple export formats to suit different analysis needs:
 
 Users can adjust visualization settings to enhance interpretability:  
 
-1. **Phenotype & Gene Colors**  
-   - Assign specific colors to different phenotypes and gene nodes.  
+1. **Phenotype Colors**  
+   - Assign specific colors to different phenotypes.  
+   - Helps create distinct visual categories in network graphs.
+  
+2. **Gene Colors**  
+   - Assign specific colors to different gene nodes.  
    - Helps create distinct visual categories in network graphs.  
 
-2. **Node Ordering**  
+3. **Node Ordering**  
    - Order nodes based on:  
      - **Degree** (importance in the network)  
      - **Random** (for unbiased visualization)  
-     - **Lexicographical** (alphabetical sorting for structured layouts)  
+     - **Lexicographical** (alphabetical sorting for structured layouts)
+
+4. **Label Customization**  
+   - Allows changing label of smaller and larger sets
+   - Allows users to use RadTrix for general unbalanced bipartite visualizations.
+
 
 ---
 
