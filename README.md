@@ -90,6 +90,7 @@ RadTrixVis provides three different modes for filtering genes based on phenotype
 
 - **Dropdown Selection**: Users can include/exclude specific phenotypes.  
 - **Color-Coded Tags**: Helps visually distinguish different phenotypes for easier analysis.  
+- **Reset Button**: Upon hover, displays a reset icon. Resets the phenotype selection to default settings, i.e., selecting all phenotypes.
 
 ---
 
