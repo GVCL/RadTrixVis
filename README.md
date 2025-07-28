@@ -39,9 +39,13 @@ Conference proceedings.
 
 Your app should now be running locally! 🚀
 
-# To launch the dashboard
+# RadTrixVis Online Tool
 
 https://gvcl.github.io/RadTrixVis/
+
+# RadTrixVis GUI Video User Guide
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Oq6ypMR0Nu8?si=QqPzcaGXefw-iIBC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 # RadTrixVis GUI Tool Help Manual
 
