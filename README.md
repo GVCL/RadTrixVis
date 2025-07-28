@@ -45,7 +45,7 @@ https://gvcl.github.io/RadTrixVis/
 
 # RadTrixVis GUI Video User Guide
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Oq6ypMR0Nu8?si=QqPzcaGXefw-iIBC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Watch the video](https://img.youtube.com/vi/Oq6ypMR0Nu8/maxresdefault.jpg)](https://youtu.be/Oq6ypMR0Nu8)
 
 # RadTrixVis GUI Tool Help Manual
 
